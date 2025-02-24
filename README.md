@@ -51,13 +51,13 @@ DeviceProcessEvents
 
 #### 📜 One-Line Descriptions of Each Script:
 
-- **portscan.ps1** - Scans a specified IP range for open common ports and logs the results for network reconnaissance.
+- **[portscan.ps1](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/portscan.ps1)** - Scans a specified IP range for open common ports and logs the results for network reconnaissance.
 
-- **eicar.ps1** - Creates an EICAR test file to simulate a benign virus detection for testing antivirus software responses.
+- **[eicar.ps1](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/eicar.ps1)** - Creates an EICAR test file to simulate a benign virus detection for testing antivirus software responses.
 
-- **exfiltratedata.ps1** - Generates fake employee data, compresses it, and uploads it to Azure Blob Storage to simulate data exfiltration.
+- **[exfiltratedata.ps1]()** - Generates fake employee data, compresses it, and uploads it to Azure Blob Storage to simulate data exfiltration.
 
-- **pwncrypt.ps1** - Encrypts files containing sensitive data and leaves a ransom note, simulating ransomware behavior.
+- **[pwncrypt.ps1](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/pwncrypt.ps1)** - Encrypts files containing sensitive data and leaves a ransom note, simulating ransomware behavior.
 
 ## 🛠️ MITRE ATT&CK TTP Assessment:
 - **T1046 - Network Service Scanning**: Executed through portscan.ps1.
