@@ -4,10 +4,10 @@
 
 ## 1. Detection
 
-**🚨 Incident Trigger:**  
+**Incident Trigger:**  
 An alert was raised for suspicious PowerShell web requests involving the account:
 
-**👤 Account:** `<king>`
+**Account:** `<king>`
 
 **Affected Host Information:**
 - **HostName:** `king-vm`
@@ -16,7 +16,7 @@ An alert was raised for suspicious PowerShell web requests involving the account
 - **Last Internal IP Address:** `10.0.0.84`
 - **Last External IP Address:** `68.154.42.194`
 
-**⚙️ Observed Commands Executed:**  
+**Observed Commands Executed:**  
 The following PowerShell commands were executed using the `-ExecutionPolicy Bypass` parameter:
 
 ```powershell
@@ -47,9 +47,9 @@ DeviceProcessEvents
 
 ## 2. Analysis
 
-#### 🔍 Code Review: Using Browserling, the URLs were accessed, and the scripts were analyzed. Each script’s function was verified and categorized.
+#### Code Review: Using Browserling, the URLs were accessed, and the scripts were analyzed. Each script’s function was verified and categorized.
 
-#### 📜 One-Line Descriptions of Each Script:
+#### One-Line Descriptions of Each Script:
 
 - **[portscan.ps1](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/portscan.ps1)** - Scans a specified IP range for open common ports and logs the results for network reconnaissance.
 
@@ -59,7 +59,7 @@ DeviceProcessEvents
 
 - **[pwncrypt.ps1](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/pwncrypt.ps1)** - Encrypts files containing sensitive data and leaves a ransom note, simulating ransomware behavior.
 
-## 🛠️ MITRE ATT&CK TTP Assessment:
+## MITRE ATT&CK TTP Assessment:
 - **T1046 - Network Service Scanning**: Executed through portscan.ps1.
 
 - **T1059.001 - Command and Scripting Interpreter**: PowerShell - Usage of PowerShell for execution.
@@ -87,11 +87,11 @@ DeviceProcessEvents
 
 ## 📑 NIST 800-161 Compliance:
 
-🔒 PR.PT-5: Restrict execution of scripts and enforce least privilege for administrative actions.
+- PR.PT-5: Restrict execution of scripts and enforce least privilege for administrative actions.
 
-🛡️ RS.MI-3: Eradication of malware and unauthorized scripts.
+- RS.MI-3: Eradication of malware and unauthorized scripts.
 
-📜 RC.IM-1: Implementation of improved policies to mitigate future incidents.
+- RC.IM-1: Implementation of improved policies to mitigate future incidents.
 
 ## 4. Lessons Learned & Security Improvements
 - Enhance monitoring rules for PowerShell execution with bypass flags.
