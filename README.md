@@ -85,7 +85,7 @@ DeviceProcessEvents
 
 - Developed and implemented a new policy to restrict PowerShell usage for non-administrative users.
 
-## 📑 NIST 800-161 Compliance:
+## 📑 NIST 800-61 Compliance:
 
 - PR.PT-5: Restrict execution of scripts and enforce least privilege for administrative actions.
 
