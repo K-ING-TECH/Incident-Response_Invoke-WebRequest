@@ -15,6 +15,10 @@ In this case, logs from **Microsoft Defender for Endpoint (MDE)** and **Microsof
 **Condition**: Triggers when `Invoke-WebRequest` is used to download files from an external domain.  
 **Data Source**: DeviceProcessEvents in MDE, forwarded to Sentinel via **Log Analytics Workspace**.
 
+This section includes screenshots of the alert creation, KQL used, rules for the alert.
+
+After its creation, the alert is triggered, I then showcase myself assigning the alert to myself, opening and working the case, then showcasing the mapped entities in the **"Investigation"** tab
+
 ```kql
 // Identify PowerShell commands downloading scripts from external sources
 DeviceProcessEvents
@@ -24,8 +28,16 @@ DeviceProcessEvents
          FolderPath, InitiatingProcessCommandLine, SHA256
 | order by TimeGenerated desc
 ```
+![Alert-Creation.png](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/Alert-Creation.png)
 
-Result: An incident was automatically created for further investigation.
+![Sentinel-Rule-Creation1.png](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/Sentinel-Rule-Creation1.png)
+
+![Sentinel-Rule-Creation2.png](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/Sentinel-Rule-Creation2.png)
+
+![Sentinel-Investigation.png](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/Sentinel-Investigation.png)
+
+![Sentinel-Entity-Mapping.png](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/Sentinel-Entity-Mapping.png)
+Result: An incident was created for further investigation.
 
 ---
 
@@ -64,7 +76,11 @@ DeviceProcessEvents
 | summarize by AccountName, DeviceName, FileName, InitiatingProcessCommandLine
 ```
 
+![Malicious-Scripts.png](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/Malicious-Scripts.png)
+
 ### 3.3 Code Review: Using Browserling, the URLs were accessed, and the scripts were analyzed. Each script’s function was verified and categorized.
+
+![Browserling.png](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/Browserling.png)
 
 #### One-Line Descriptions of Each Script:
 
@@ -85,9 +101,13 @@ Finding: This indicates an active malicious or test scenario, as scripts were su
 Device Isolation
 
 Used Microsoft Defender for Endpoint to isolate the target (windows-target-1), cutting off external attacker communication.
+
 Comprehensive AV Scan
 
 Ran a full antivirus scan to detect and remove potential malware associated with the downloaded scripts.
+
+![Isolation.png](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/Isolation.png)
+
 ### 4.2 Eradication Steps
 Reimaging & Redeployment
 
