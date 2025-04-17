@@ -28,15 +28,15 @@ DeviceProcessEvents
          FolderPath, InitiatingProcessCommandLine, SHA256
 | order by TimeGenerated desc
 ```
-![Alert-Creation.png](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/Alert-Creation.png)
+![Alert Creation](images/Alert-Creation.png)
 
-![Sentinel-Rule-Creation1.png](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/Sentinel-Rule-Creation1.png)
+![Sentinel Rule Creation 1](images/Sentinel-Rule-Creation1.png)
 
-![Sentinel-Rule-Creation2.png](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/Sentinel-Rule-Creation2.png)
+![Sentinel Rule Creation 2](images/Sentinel-Rule-Creation2.png)
 
-![Sentinel-Investigation.png](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/Sentinel-Investigation.png)
+![Sentinel Investigation](images/Sentinel-Investigation.png)
 
-![Sentinel-Entity-Mapping.png](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/Sentinel-Entity-Mapping.png)
+![Sentinel Entity Mapping](images/Sentinel-Entity-Mapping.png)
 Result: An incident was created for further investigation.
 
 ---
@@ -76,21 +76,21 @@ DeviceProcessEvents
 | summarize by AccountName, DeviceName, FileName, InitiatingProcessCommandLine
 ```
 
-![Malicious-Scripts.png](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/Malicious-Scripts.png)
+![Malicious Scripts](images/Malicious-Scripts.png)
 
 ### 3.3 Code Review: Using Browserling, the URLs were accessed, and the scripts were analyzed. Each script’s function was verified and categorized.
 
-![Browserling.png](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/Browserling.png)
+![Browserling](images/Browserling.png)
 
 #### One-Line Descriptions of Each Script:
 
-- **[portscan.ps1](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/portscan.ps1)** - Scans a specified IP range for open common ports and logs the results for network reconnaissance.
+- **[View "portscan" script ➡](scripts/portscan.ps1)** - Scans a specified IP range for open common ports and logs the results for network reconnaissance.
 
-- **[eicar.ps1](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/eicar.ps1)** - Creates an EICAR test file to simulate a benign virus detection for testing antivirus software responses.
+- **[View "eicar" script ➡](scripts/eicar.ps1)** - Creates an EICAR test file to simulate a benign virus detection for testing antivirus software responses.
 
-- **[exfiltratedata.ps1](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/exfiltratedata.ps1)** - Generates fake employee data, compresses it, and uploads it to Azure Blob Storage to simulate data exfiltration.
+- **[View "exfiltratedata" script ➡](scripts/exfiltratedata.ps1)** - Generates fake employee data, compresses it, and uploads it to Azure Blob Storage to simulate data exfiltration.
 
-- **[pwncrypt.ps1](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/pwncrypt.ps1)** - Encrypts files containing sensitive data and leaves a ransom note, simulating ransomware behavior.
+- **[View "pwncrypt" script ➡](scripts/pwncrypt.ps1)** - Encrypts files containing sensitive data and leaves a ransom note, simulating ransomware behavior.
 
 Finding: This indicates an active malicious or test scenario, as scripts were successfully invoked on the system.
 
@@ -106,7 +106,7 @@ Comprehensive AV Scan
 
 Ran a full antivirus scan to detect and remove potential malware associated with the downloaded scripts.
 
-![Isolation.png](https://github.com/K-ING-TECH/Incident-Response_Invoke-WebRequest/blob/main/Isolation.png)
+![Isolation](images/Isolation.png)
 
 ### 4.2 Eradication Steps
 Reimaging & Redeployment
